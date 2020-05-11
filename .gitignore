@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# mac directory files
+.DS_Store
+
+# I'll add data files manually since they can be large sometimes
+*.csv
