@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from single_neural_classifier import SingleNeuronClassifier
+from least_square import LeastSquares
 from utils import *
 from plot import *
 
@@ -60,3 +61,21 @@ if __name__ == "__main__":
 
     # training model
     final_statistics = train(model, train_data, train_labels, valid_data, valid_labels, opts)
+
+    """ Least Squares Solution (Optional) """
+    # The purpose of this is mainly to see how gradient descent preforms compared to the theoretical analytical solutions
+    """
+    print("\nLeast Square Solution")
+    LS_model = LeastSquares()
+    final_statistics = LS_model.train(train_data, train_labels, valid_data, valid_labels)
+    final_train_loss, final_train_acc, final_valid_loss, final_valid_acc = final_statistics
+    b_LS, w_LS = LS_model.get_parameters()
+
+    print(f"Training loss: {final_train_loss:.4f}{'':.20s}\t\tTraining acc: {final_train_acc * 100:.2f}%")
+    print(f"Validation loss: {final_valid_loss:.4f}{'':.20s}\t\tValidation acc: {final_valid_acc * 100:.2f}%")
+    print()
+    print(b_LS)
+    print(w_LS)
+
+    dispKernel(w_LS, 3, 300)
+    """

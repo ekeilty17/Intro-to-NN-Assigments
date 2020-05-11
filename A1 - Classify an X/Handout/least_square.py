@@ -3,7 +3,7 @@ import numpy as np
 class LeastSquares(object):
 
     def __init__(self):
-        self.w_aug = None
+        self.w_aug = None       # w_aug = [bias, w_1, ..., w_d]
     
     def get_parameters(self):
         if self.w_aug is None:
@@ -20,8 +20,12 @@ class LeastSquares(object):
         return (pred > 0.5 and label == 1) or (pred < 0.5 and label == 0)
 
     def predict(self, data):
-        X = np.insert(data, 0, 1, axis=1)
-        return X @ self.w_aug
+        # Note: data is an un-augmented data matrix
+        #   You should first augment the data with a column of 1's
+        #   and then matrix multipy with self.w_aug
+        # Note: A @ B is matrix multiplication is numpy
+        # Hint: np.insert() may be helpful
+        raise NotImplementedError
 
     def evaluate(self, data, labels):
         
@@ -34,15 +38,13 @@ class LeastSquares(object):
         acc /= len(predictions)
 
         return loss, acc
-
+    
     def train(self, train_data, train_labels, valid_data, valid_labels):
-        # augment data
-        X = np.insert(train_data, 0, 1, axis=1)
-        y = train_labels
+        raise NotImplementedError
 
-        self.w_aug = np.linalg.inv(X.T @ X) @ X.T @ y
-
-        train_loss, train_acc = self.evaluate(train_data, train_labels)
-        valid_loss, valid_acc = self.evaluate(valid_data, valid_labels)
-
+        # 1) augment training data
+        # 2) calculate self.w_aug using least squares formula
+        # 3) evaluate training data to obtain train_loss, train_acc using self.evalulate()
+        # 4) evaluate validation data to obtain valid_loss, valid_acc using self.evalulate()
+        # 5) return loss and accuracy values
         return train_loss, train_acc, valid_loss, valid_acc

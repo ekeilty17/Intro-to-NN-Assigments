@@ -93,7 +93,8 @@ if __name__ == "__main__":
     print(w)
 
 
-    """ Least Squares Solution """
+    """ Least Squares Solution (Optional) """
+    # The purpose of this is mainly to see how gradient descent preforms compared to the theoretical analytical solutions
     print("\nLeast Square Solution")
     LS_model = LeastSquares()
     final_statistics = LS_model.train(train_data, train_labels, valid_data, valid_labels)
