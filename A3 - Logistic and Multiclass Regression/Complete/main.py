@@ -8,10 +8,14 @@ from utils import *
 from plot import *
 
 def total_correct_binary(predictions, labels):
+    predictions = torch.nn.Sigmoid()(predictions)
+    #print(predictions)
     corr = (predictions > 0.5).squeeze().long() == labels.squeeze().long()       #.long() converts from a float in an integer
     return int(corr.sum())
 
 def total_correct_multiclass(predictions, labels):
+    predictions = torch.nn.Softmax(dim=1)(predictions)
+    #print(predictions)
     corr = torch.argmax(predictions.squeeze(), dim=1) == labels.long()
     return int(corr.sum())
 
@@ -86,14 +90,8 @@ def train(model, train_loader, valid_loader, opts):
             evaluated_data += labels.size(0)
 
         # Logging training data statistics
-        Loss["train"].append( float(running_loss / total_batches) )     # this loss is basically an average of an average
-                                                                        # we could techincally recalculate it completely, 
-                                                                        # but that would obviously be computationally inefficient
-                                                                        # so this is a good enough approximate
-            
-        Acc["train"].append( float(running_acc / evaluated_data)  )     # similar with the accuracy. It will be the average accuracy over 
-                                                                        # maybe batches, which means the model has updated multiple times
-                                                                        # between evaluations
+        Loss["train"].append( float(running_loss / total_batches) )
+        Acc["train"].append( float(running_acc / evaluated_data)  )
         
         # evaluating model using validation data
         model.eval()
@@ -109,8 +107,8 @@ def train(model, train_loader, valid_loader, opts):
     if opts.plot:
         display_statistics(Loss["train"], Acc["train"], Loss["valid"], Acc["valid"])
         plt.close()
-        weights = model.fc[0].weight.data.numpy().flatten()
-        dispKernel(weights, 3, 300)
+        weights = model.fc[0].weight.data.numpy()
+        display_kernels(weights, 3, 300)
     
     # return final statistic values
     model.eval()
@@ -121,24 +119,32 @@ if __name__ == "__main__":
     # target we want to classify
     target = np.array([1, 0, 1, 0, 1, 0, 1, 0, 1])
 
+    # TODO: play with this value
+    #       try 1
+    #       try 2
+    #       try 10
+    num_classes = 1         # 1 --> 'binary' or  >1 --> 'multiclass'
+    
+    # specifying loss function based on type of classification
+    loss_fnc = torch.nn.BCEWithLogitsLoss() if num_classes == 1 else torch.nn.CrossEntropyLoss()
+
     # getting args
     opts = AttrDict()
     args_dict = {
         "seed": None,
         "lr": 0.1,
         "actfunction": "relu",
-        "epochs": 1000,
-        "batch_size": None,
+        "epochs": 100,
+        "batch_size": 5,
         "optimizer": torch.optim.SGD,
-        "loss_fnc": None,        # updated after based on value of num_classes
+        "loss_fnc": loss_fnc,
         "plot": True,
-        "num_classes": 1         # 1 --> 'binary' or  >1 --> 'multiclass'
+        "num_classes": num_classes
     }
-    args_dict["loss_fnc"] = torch.nn.BCEWithLogitsLoss() if args_dict["num_classes"] == 1 else torch.nn.CrossEntropyLoss()
     opts.update(args_dict)
 
     # load data
-    train_loader, valid_loader = load_data(opts.batch_size)
+    train_loader, valid_loader = load_data(opts.batch_size, opts.seed)
 
     # creating model
     model = LogisticRegression(len(target)) if opts.num_classes == 1 else MultiClassRegression(len(target), opts.num_classes)

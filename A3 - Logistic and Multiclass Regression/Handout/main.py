@@ -1,62 +1,163 @@
+import torch
 import numpy as np
 import matplotlib.pyplot as plt
 
-from single_neural_classifier import SingleNeuronClassifier
+from logistic_regression import LogisticRegression
+from multiclass_regression import MultiClassRegression
 from utils import *
 from plot import *
 
-# Loss
-def MSE(predictions, labels):
-    return np.mean( (predictions - labels)**2 )
-
-# Accuracy
-def isCorrect(pred, label):
-    return (pred > 0.5 and label == 1) or (pred < 0.5 and label == 0)
-
-def evaluate(predictions, labels):
-    accuracy = 0
-    for pred, label in zip(predictions, labels):
-        if isCorrect(pred, label):
-            accuracy += 1
-    return accuracy / len(predictions)
-
-# TODO
-def train(model, traindata, trainlabels, validdata, validlabels, opts):
-    # training Loop
+def total_correct_binary(predictions, labels):
+    predictions = torch.nn.Sigmoid()(predictions)
+    #print(predictions)
     raise NotImplementedError
 
-    if opts.plot:
-        # feel free to re-name these whatever you want, this is just how you call the function
-        # where train_loss is a numpy array of the training losses for each epoch
-        display_statistics(train_loss, train_acc, valid_loss, valid_acc)
+def total_correct_multiclass(predictions, labels):
+    predictions = torch.nn.Softmax(dim=1)(predictions)
+    #print(predictions)
+    raise NotImplementedError
 
+def evaluate(model, loader, opts):
+    
+    loss_fnc = opts.loss_fnc
+    total_correct = total_correct_binary if opts.num_classes == 1 else total_correct_multiclass
+    
+    total_corr = 0 
+    evaluate_data = 0 
+    total_batches = 0 
+    running_loss = 0.0
+    
+    with torch.no_grad():
+        for batch, labels in loader:
+            
+            # different loss functions need labels to be reformatted differently
+            labels = labels.reshape(-1, 1).float() if opts.num_classes == 1 else labels.long()
+            
+            predictions = model(batch.float())
+            running_loss += loss_fnc(input=predictions, target=labels)
+            total_corr += total_correct(predictions, labels)
+    
+            evaluate_data += labels.size(0)
+            total_batches += 1
+
+    loss = running_loss / total_batches
+    acc = total_corr / evaluate_data
+    return float(loss), float(acc)
+
+
+def train(model, train_loader, valid_loader, opts):
+    if not opts.seed is None:
+        torch.manual_seed(opts.seed)
+
+    # initializing model
+    """
+    TODO: put model in training mode, initialize optimizer
+    """
+
+    # Initializing loss and accuracy arrays for plots
+    """
+    TODO: Create datastructures to log loss and accuracy for both training and validation data 
+    """
+
+    """ Training Loop """
+    for e in range(opts.epochs):
+
+        # variables to keep track of training loss and accuracy
+        evaluated_data = 0
+        total_batches = 0
+        running_loss = 0.0
+        running_acc = 0.0
+
+        # batching
+        for i, batch  in enumerate(train_loader):
+            batch = data, labels
+            
+            # different loss functions need labels to be reformatted differently
+            labels = labels.reshape(-1, 1).float() if opts.num_classes == 1 else labels.long()
+
+            """
+            TODO: PyTorch things
+            """
+
+            # update training loss and accuracy statistics
+            running_loss += loss
+            
+            if opts.num_classes == 1:
+                running_acc += total_correct_binary(predictions, labels)
+            else:
+                running_acc += total_correct_multiclass(predictions, labels)
+
+            # updating counters
+            evaluated_data += labels.size(0)
+            total_batches += 1
+
+        # updating training data loss and accuracy arrays
+        avg_loss = running_loss / total_batches
+        avg_acc = running_acc / evaluated_data
+        """
+        TODO: update training loss and accuracy datastructures
+        """
+
+        # evaluating validation data
+        """
+        TODO:   put model in evaluation mode, evaluate model (which is done in the function given below which is already written)
+                and update validation loss and accuracy datastructures (don't forget to put the model back into training mode after)
+        """
+        loss, acc = evaluate(model, valid_loader, opts)
+
+        # printing progress
+        print(f"epoch: {e+1:4d}\tloss: {<train_loss_of_last_epoch>:.4f}\tacc: {<valid_acc_of_last_epoch>:.4f}")
+
+    
+    # Note replace the <variable_name> parts with whatever variable(s) you are using to store those values
+
+    # plots
+    if opts.plot:
+        display_statistics(<train_loss_list>, <train_acc_list>, <valid_loss_list>, <valid_acc_list>)
         plt.close()
 
-        # model.W = weights of the model not including the bias
-        # 3 and 300 are just scaling numbers for the plot don't worry about them
-        dispKernel(model.W, 3, 300)
+        #weights = model.<name of fully connected layer in __init__>.weight.data.numpy()
+        #display_kernels(weights, 3, 300)
+    
+    # return final statistic values
+    model.eval()
+    return <final_train_loss>, <final_train_acc>, <final_valid_loss>, <final_valid_acc>
+
 
 if __name__ == "__main__":
+
     # target we want to classify
     target = np.array([1, 0, 1, 0, 1, 0, 1, 0, 1])
 
-    # getting data
-    train_data, train_labels, valid_data, valid_labels = load_data()
+    # TODO: play with this value
+    #       try 1
+    #       try 2
+    #       try 10
+    num_classes = 1         # 1 --> 'binary' or  >1 --> 'multiclass'
+    
+    # specifying loss function based on type of classification
+    loss_fnc = torch.nn.BCEWithLogitsLoss() if num_classes == 1 else torch.nn.CrossEntropyLoss()
 
     # getting args
     opts = AttrDict()
     args_dict = {
         "seed": None,
         "lr": 0.1,
-        "actfunction": "Sigmoid",
-        "epochs": 500,
+        "actfunction": "relu",
+        "epochs": 100,
+        "batch_size": 5,
+        "optimizer": torch.optim.SGD,
+        "loss_fnc": loss_fnc,
         "plot": True,
-        "SGD": False
+        "num_classes": num_classes
     }
     opts.update(args_dict)
 
+    # load data
+    train_loader, valid_loader = load_data(opts.batch_size, opts.seed)
+
     # creating model
-    model = SingleNeuronClassifier(len(target), opts.actfunction, opts.lr)
+    model = LogisticRegression(len(target)) if opts.num_classes == 1 else MultiClassRegression(len(target), opts.num_classes)
 
     # training model
-    final_statistics = train(model, train_data, train_labels, valid_data, valid_labels, opts)
+    final_statistics = train(model, train_loader, valid_loader, opts)

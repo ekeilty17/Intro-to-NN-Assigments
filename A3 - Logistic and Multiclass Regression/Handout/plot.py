@@ -60,14 +60,8 @@ def display_statistics(train_loss=None, train_acc=None, valid_loss=None, valid_a
         plot_accuracy(np.arange(0, len(train_loss), 1), train_acc, valid_acc, test_acc, ax=ax[1])
         plt.show()
 
-def dispKernel(kernel, ksize, isize):
-    """
-    Function to display, in gray scale, the weights in a grid
-    the parameter 'kernel' contains ksize*ksize weights to display
-    isize is the number of pixels on one dimentions of the square image to be displayed
-    that is, the image to be displayed is isize * isize pixels
-    NOTE THAT isize *must be divisable* by ksize
-    """
+def display_kernel(kernel, ksize, isize, ax=None, axis="off"):
+    ax = plt.gca() if ax == None else ax
 
     # for normalizing
     kmax = max(kernel)
@@ -89,11 +83,29 @@ def dispKernel(kernel, ksize, isize):
             for k in range(dsize):
                 for l in range(dsize):
                     a[basei + k][basej + l] = (kernel[(i * ksize) + j] - kmin) / spread
-    # print(a)
 
     x = np.uint8(a * 255)
 
-    # print(x)
     img = Image.fromarray(x, mode='P')
-    plt.imshow(img, cmap='Greys_r')
+    ax.imshow(img, cmap='Greys_r')
+    
+    if axis == "off":
+        ax.axis("off")
+
+def display_kernels(kernels, ksize, isize):
+
+    if len(kernels) == 1:
+        display_kernel(kernels[0], ksize, isize, axis="on")
+        plt.show()
+        return
+    
+    if len(kernels) < 5:
+        fig, axes = plt.subplots(1, len(kernels))
+    else:
+        fig, axes = plt.subplots(int(np.ceil(len(kernels)/5)), 5)
+        plt.subplots_adjust(hspace=0)
+
+    for kernel, ax in zip(kernels, axes.flatten()):
+        display_kernel(kernel, ksize, isize, ax, axis="off")
+        
     plt.show()
