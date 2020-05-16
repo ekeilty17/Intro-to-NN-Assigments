@@ -142,10 +142,12 @@ def load_data(data_path, label_feature, label_mapping=None, preprocess=True, bat
         print("Cleaning dataset...")
         df = clean(df)
         
-        # balancing ensures there are an equal number of data points for each value in label_feature
-        # which prevents our model from becoming biased
-        print("Balancing dataset...")
-        df = balance(df, label_feature, seed)
+        # we don't need to balance continuous data
+        if not label_mapping is None:
+            # balancing ensures there are an equal number of data points for each value in label_feature
+            # which prevents our model from becoming biased
+            print("Balancing dataset...")
+            df = balance(df, label_feature, seed)
 
     # Splitting Data
     df_train, df_valid = train_test_split(df, test_size=0.2, random_state=seed)
