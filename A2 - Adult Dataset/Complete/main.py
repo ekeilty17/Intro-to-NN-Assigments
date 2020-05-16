@@ -22,7 +22,6 @@ def total_correct_regression(predictions, labels):
 
 def evaluate(model, loader, opts):
     
-    model.eval()
     total_corr = 0
     evaluate_data = 0
     total_batches = 0
@@ -39,7 +38,6 @@ def evaluate(model, loader, opts):
 
     loss = running_loss / total_batches
     acc = float(total_corr) / evaluate_data
-    model.train()
     return float(loss), float(acc)
 
 def train(model, train_loader, valid_loader, opts):
@@ -90,12 +88,14 @@ def train(model, train_loader, valid_loader, opts):
         Acc["train"].append( float(running_acc / evaluated_data)  )
 
         # validation data statistics
+        model.eval()
         loss, acc = evaluate(model, valid_loader, opts)
+        model.train()
+
         Loss["valid"].append( loss )
         Acc["valid"].append( acc )
         
         print(f"epoch: {e+1:4d}\tbatch: {i+1:5d}\tloss: {Loss['train'][-1]:.4f}\tacc: {Acc['valid'][-1]:.4f}")
-        model.train()
 
     # plots
     if opts.plot:

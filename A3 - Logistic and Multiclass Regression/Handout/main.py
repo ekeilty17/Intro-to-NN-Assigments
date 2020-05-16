@@ -10,11 +10,31 @@ from plot import *
 def total_correct_binary(predictions, labels):
     predictions = torch.nn.Sigmoid()(predictions)
     #print(predictions)
+
+    """ 
+    TODO: Count the number of predictions that match their corresponding label
+        params: torch.tensor, torch.tensor
+        return: int
+    """
+
+    # Note: predictions.size() = torch.Size([opts.batch_size, 1])
+    #       labels.size() = torch.Size([opts.batch_size, 1])
+    
     raise NotImplementedError
 
 def total_correct_multiclass(predictions, labels):
     predictions = torch.nn.Softmax(dim=1)(predictions)
     #print(predictions)
+
+    """ 
+    TODO: Count the number of predictions that match their corresponding label
+        params: torch.tensor, torch.tensor
+        return: int
+    """
+
+    # Note: predictions.size() = torch.Size([opts.batch_size, 1])
+    #       labels.size() = torch.Size([opts.batch_size])
+
     raise NotImplementedError
 
 def evaluate(model, loader, opts):
@@ -62,7 +82,7 @@ def train(model, train_loader, valid_loader, opts):
     """ Training Loop """
     for e in range(opts.epochs):
 
-        # variables to keep track of training loss and accuracy
+        # variables to help keep track of training loss and accuracy
         evaluated_data = 0
         total_batches = 0
         running_loss = 0.0
@@ -91,6 +111,11 @@ def train(model, train_loader, valid_loader, opts):
             evaluated_data += labels.size(0)
             total_batches += 1
 
+        # evaluating model
+        """
+        TODO: Put model in evaluation mode
+        """
+
         # updating training data loss and accuracy arrays
         avg_loss = running_loss / total_batches
         avg_acc = running_acc / evaluated_data
@@ -98,16 +123,17 @@ def train(model, train_loader, valid_loader, opts):
         TODO: update training loss and accuracy datastructures
         """
 
-        # evaluating validation data
-        """
-        TODO:   put model in evaluation mode, evaluate model (which is done in the function given below which is already written)
-                and update validation loss and accuracy datastructures (don't forget to put the model back into training mode after)
-        """
+        # validation data statistics
         loss, acc = evaluate(model, valid_loader, opts)
+        """
+        TODO:   update validation loss and accuracy datastructures
+        """
 
         # printing progress
         print(f"epoch: {e+1:4d}\tloss: {<train_loss_of_last_epoch>:.4f}\tacc: {<valid_acc_of_last_epoch>:.4f}")
-
+        """
+        TODO: put model back into training mode
+        """
     
     # Note replace the <variable_name> parts with whatever variable(s) you are using to store those values
 
@@ -143,7 +169,6 @@ if __name__ == "__main__":
     args_dict = {
         "seed": None,
         "lr": 0.1,
-        "actfunction": "relu",
         "epochs": 100,
         "batch_size": 5,
         "optimizer": torch.optim.SGD,

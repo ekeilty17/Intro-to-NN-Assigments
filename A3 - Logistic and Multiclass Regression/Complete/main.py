@@ -47,8 +47,6 @@ def evaluate(model, loader, opts):
     return float(loss), float(acc)
 
 def train(model, train_loader, valid_loader, opts):
-    if not opts.seed is None:
-        torch.manual_seed(opts.seed)
 
     # initializing model and parameters
     model.train()
@@ -60,13 +58,15 @@ def train(model, train_loader, valid_loader, opts):
     Loss = { "train": [], "valid": [] }
     Acc = { "train": [], "valid": [] }
 
-    evaluated_data = 0
-    total_batches = 0
-    running_loss = 0.0
-    running_acc = 0.0
-
     # training loop
     for e in range(opts.epochs):
+        
+        # variables to help keep track of training loss and accuracy
+        evaluated_data = 0
+        total_batches = 0
+        running_loss = 0.0
+        running_acc = 0.0
+        
         # iterating over mini-batches
         for i, batch in enumerate(train_loader):
             data, labels = batch
@@ -86,14 +86,14 @@ def train(model, train_loader, valid_loader, opts):
             running_acc += total_correct(predictions, labels)
             
             # updating counters
-            total_batches += 1
             evaluated_data += labels.size(0)
+            total_batches += 1
 
         # Logging training data statistics
         Loss["train"].append( float(running_loss / total_batches) )
         Acc["train"].append( float(running_acc / evaluated_data)  )
         
-        # evaluating model using validation data
+        # evaluating model logging validation data
         model.eval()
         loss, acc = evaluate(model, valid_loader, opts)
         model.train()
@@ -123,7 +123,7 @@ if __name__ == "__main__":
     #       try 1
     #       try 2
     #       try 10
-    num_classes = 1         # 1 --> 'binary' or  >1 --> 'multiclass'
+    num_classes = 10         # 1 --> 'binary' or  >1 --> 'multiclass'
     
     # specifying loss function based on type of classification
     loss_fnc = torch.nn.BCEWithLogitsLoss() if num_classes == 1 else torch.nn.CrossEntropyLoss()
@@ -133,15 +133,18 @@ if __name__ == "__main__":
     args_dict = {
         "seed": None,
         "lr": 0.1,
-        "actfunction": "relu",
         "epochs": 100,
-        "batch_size": 5,
+        "batch_size": None,
         "optimizer": torch.optim.SGD,
         "loss_fnc": loss_fnc,
         "plot": True,
         "num_classes": num_classes
     }
     opts.update(args_dict)
+
+    # random seed
+    if not opts.seed is None:
+        torch.manual_seed(opts.seed)
 
     # load data
     train_loader, valid_loader = load_data(opts.batch_size, opts.seed)
