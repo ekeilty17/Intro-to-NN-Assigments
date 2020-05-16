@@ -56,6 +56,8 @@ class Tester(object):
             print(f"weights = {NN.weights}")
             print(f"bias = {NN.bias}")
 
+        return correct_weights
+
 if __name__ == "__main__":
     target = [
         1, 0, 1,
