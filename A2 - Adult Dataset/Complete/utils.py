@@ -43,7 +43,6 @@ class AdultDataset(Dataset):
 
     @staticmethod
     def onehot_encode(labels, num_classes):
-        print((labels.size(0), num_classes))
         onehot_labels = torch.zeros((labels.size(0), num_classes), dtype=int)
         for onehot, label in zip(onehot_labels, labels):
             onehot[label] = 1

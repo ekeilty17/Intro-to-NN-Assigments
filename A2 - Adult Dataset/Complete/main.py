@@ -11,7 +11,10 @@ def total_correct_binary(predictions, labels):
     return int(corr.sum())
 
 def total_correct_multiclass(predictions, labels):
-    corr = ( torch.argmax(predictions.squeeze(), dim=1) == torch.argmax(labels) )
+    #print(predictions)
+    #print(labels)
+    
+    corr = ( torch.argmax(predictions, dim=1) == torch.argmax(labels, dim=1) )
     return int(corr.sum())
 
 def total_correct_regression(predictions, labels):
@@ -68,6 +71,10 @@ def train(model, train_loader, valid_loader, opts):
             # usual pytorch things
             optimizer.zero_grad()
             predictions = model(data.float())
+
+            if opts.classification_type in ["binary", "regression"]:
+                predictions = predictions.squeeze()
+
             loss = loss_fnc(input=predictions.squeeze(), target=labels.float())
             loss.backward()
             optimizer.step()
@@ -112,9 +119,9 @@ if __name__ == "__main__":
     opts = AttrDict()
     args_dict = {
         "seed": None,
-        "lr": 0.1,
+        "lr": 0.01,
         "actfunction": "relu",              # 'linear', 'relu', 'sigmoid', 'tanh'
-        "epochs": 50,
+        "epochs": 100,
         "batch_size": 100,
         "num_hidden_layers": 1,
         "hidden_size": 64,
@@ -128,7 +135,7 @@ if __name__ == "__main__":
     #   Binary
     label_name = "income"
     label_mapping = {'<=50K': 0, '>50K': 1}
-
+    
     """
     #   Multiclass
     label_name = "workclass"

@@ -16,7 +16,6 @@ def total_correct(predictions, labels):
 
 def evaluate(model, loader, opts):
     
-    model.eval()
     total_corr = 0
     evaluate_data = 0
     total_batches = 0
@@ -33,7 +32,6 @@ def evaluate(model, loader, opts):
 
     loss = running_loss / total_batches
     acc = float(total_corr) / evaluate_data
-    model.train()
     return float(loss), float(acc)
 
 def train(model, train_loader, valid_loader, opts):
