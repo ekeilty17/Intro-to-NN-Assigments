@@ -20,7 +20,7 @@ class AttrDict(dict):
 
 class AdultDataset(Dataset):
 
-    def __init__(self, df, label_feature, label_mapping=None):
+    def __init__(self, df, label_feature, label_mapping):
         
         self.label_feature = label_feature
         self.label_mapping = label_mapping
@@ -29,9 +29,8 @@ class AdultDataset(Dataset):
         self.data = df.loc[:, df.columns != label_feature]
         self.labels = df[label_feature]
         
-        # if the labels are categorical, we need to integer encode them
-        if not label_mapping is None:
-            self.labels = self.labels.transform(lambda value: label_mapping[value])
+        # we need to integer encode the labels using the manual mapping
+        self.labels = self.labels.transform(lambda value: label_mapping[value])
 
         # converting to tensors
         self.data = torch.tensor( self.data.values )
@@ -56,7 +55,7 @@ def clean(df):
 def balance(df, label_feature, seed=None):
     """ 
     TODO: Remove rows such that there is an equal number of rows with each feature_label value
-        param: pd.DataFrame, label_feature, seed
+        param: pd.DataFrame, str, int
         return: pd.DataFrame
     """
     # Steps: 
@@ -138,7 +137,7 @@ def transform(df, label_feature, Metadata):
     return pd.concat([df_cont, df_cat_expanded, df[label_feature]], axis=1)
 
 
-def load_data(data_path, label_feature, label_mapping=None, preprocess=True, batch_size=None, seed=None):
+def load_data(data_path, label_feature, label_mapping, preprocess=True, batch_size=None, seed=None):
     
     # getting dataset
     df = pd.read_csv(data_path)

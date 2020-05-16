@@ -18,8 +18,6 @@ class AttrDict(dict):
         self.__dict__ = self
 
 
-
-
 class AdultDataset(Dataset):
 
     def __init__(self, df, label_feature, label_mapping=None):
@@ -38,6 +36,18 @@ class AdultDataset(Dataset):
         # converting to tensors
         self.data = torch.tensor( self.data.values )
         self.labels = torch.tensor( self.labels.values )
+
+        # if we have more than 2 class labels, we need to onehot encode our labels
+        if (not label_mapping is None) and (len(label_mapping) > 2):
+            self.labels = self.onehot_encode(self.labels, len(label_mapping))
+
+    @staticmethod
+    def onehot_encode(labels, num_classes):
+        print((labels.size(0), num_classes))
+        onehot_labels = torch.zeros((labels.size(0), num_classes), dtype=int)
+        for onehot, label in zip(onehot_labels, labels):
+            onehot[label] = 1
+        return onehot_labels
 
     def __len__(self):
         return len(self.data)

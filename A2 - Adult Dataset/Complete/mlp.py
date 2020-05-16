@@ -56,14 +56,3 @@ class MultiLayerPerceptron(nn.Module):
         for fc in self.Hidden:
             x = fc(x)
         return self.last(x)
-
-if __name__ == "__main__":
-    model = MultiLayerPerceptron(   103, 
-                                    hidden_size=[64, 32], 
-                                    output_size=1, 
-                                    num_hidden_layers=2, 
-                                    actfunction="relu", 
-                                    seed=0
-                                )
-    
-    print(model)
