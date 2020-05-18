@@ -11,9 +11,6 @@ def total_correct_binary(predictions, labels):
     return int(corr.sum())
 
 def total_correct_multiclass(predictions, labels):
-    #print(predictions)
-    #print(labels)
-    
     corr = ( torch.argmax(predictions, dim=1) == torch.argmax(labels, dim=1) )
     return int(corr.sum())
 
@@ -121,7 +118,7 @@ if __name__ == "__main__":
         "seed": None,
         "lr": 0.01,
         "actfunction": "relu",              # 'linear', 'relu', 'sigmoid', 'tanh'
-        "epochs": 100,
+        "epochs": 50,
         "batch_size": 100,
         "num_hidden_layers": 1,
         "hidden_size": 64,
@@ -135,7 +132,7 @@ if __name__ == "__main__":
     #   Binary
     label_name = "income"
     label_mapping = {'<=50K': 0, '>50K': 1}
-    
+
     """
     #   Multiclass
     label_name = "workclass"
@@ -155,12 +152,12 @@ if __name__ == "__main__":
 
     # load data
     #   You only have to call this once, then it'll save the preprocessed data into a new .csv file
-    train_loader, valid_loader = load_data( "../data/adult.csv", label_name, label_mapping,
-                                            preprocess=True, batch_size=opts.batch_size, seed=opts.seed)
+    #train_loader, valid_loader = load_data( "../data/adult.csv", label_name, label_mapping,
+    #                                        preprocess=True, batch_size=opts.batch_size, seed=opts.seed)
 
     #   Then you can just call it like this, which should make thing run faster
-    #train_loader, valid_loader = load_data( "../data/adult_preprocessed.csv", label_name, label_mapping,
-    #                                        preprocess=False, batch_size=opts.batch_size, seed=opts.seed)
+    train_loader, valid_loader = load_data( "../data/adult_preprocessed.csv", label_name, label_mapping,
+                                            preprocess=False, batch_size=opts.batch_size, seed=opts.seed)
 
     # based on label_mapping variable, we specify some useful variables in opts
     if label_mapping is None:                           # regression
