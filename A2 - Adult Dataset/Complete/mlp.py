@@ -23,7 +23,7 @@ class MultiLayerPerceptron(nn.Module):
 
         # random seed
         self.seed = seed
-        if self.seed != None:
+        if not self.seed is None:
             torch.manual_seed(self.seed)
 
         # Creating hidden layers of neural network
