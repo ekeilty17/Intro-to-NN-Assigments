@@ -33,10 +33,6 @@ def evaluate(model, loader, loss_fnc, total_correct):
 # Training Loop
 def train(model, train_loader, valid_loader, opts):
 
-    # random seed for initializing weights
-    if not opts.seed is None:
-        torch.manual_seed(seed)
-
     """
     TODO: Write Training Loop (exactly the same as before)
     """
@@ -47,11 +43,14 @@ def train(model, train_loader, valid_loader, opts):
         plt.close()
         
         if opts.model_type == "CNN":
-            kernels = [W.data.numpy().flatten() for W in model.conv[0].weight]
+            kernels = [W.data.numpy().flatten() for W in model.<name of convolution module>[0].weight]
             display_kernels(kernels, 3, 300)
         else:
-            kernels = np.array([fc[0].weight.data.numpy() for fc in model.Hidden]).squeeze()
-            display_kernels(kernels, 5, 250)
+            modual_list = [model.<name of first module>, model.<name of second module, ...]
+            layers = np.array([fc[0].weight.data.numpy() for fc in model_list])
+            for kernels in layers:
+                display_kernels(kernels, 5, 250)
+                plt.close()
 
     # return final statistic values
     model.eval()
@@ -83,6 +82,10 @@ if __name__ == "__main__":
     # error checking
     if not opts.model_type in ["CNN", "MLP"]:
         raise ValueError(f"{opts.model_type} architecture not supported")
+
+    # random seed for initializing weights
+    if not opts.seed is None:
+        torch.manual_seed(opts.seed)
 
     # getting data
     train_loader, valid_loader = load_data(batch_size=opts.batch_size, seed=opts.seed)

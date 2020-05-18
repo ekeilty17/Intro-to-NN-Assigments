@@ -11,7 +11,6 @@ def total_correct(predictions, labels):
     return int(corr.sum())
 
 def evaluate(model, loader, loss_fnc, total_correct):
-    model.eval()
     total_corr = 0
     evaluate_data = 0
     total_batches = 0
@@ -27,15 +26,10 @@ def evaluate(model, loader, loss_fnc, total_correct):
     
     loss = running_loss / total_batches
     acc = float(total_corr) / evaluate_data
-    model.train()
-    return loss, acc
+    return float(loss), float(acc)
 
 # Training Loop
 def train(model, train_loader, valid_loader, opts):
-
-    # random seed for initializing weights
-    if not opts.seed is None:
-        torch.manual_seed(seed)
 
     # initializing model
     model.train()
@@ -46,13 +40,15 @@ def train(model, train_loader, valid_loader, opts):
     Loss = { "train": [], "valid": [] }
     Acc = { "train": [], "valid": [] }
 
-    evaluated_data = 0
-    total_batches = 0
-    running_loss = 0.0
-    running_acc = 0.0
-
     """ Training Loop """
     for e in range(opts.epochs):
+
+        # variables to help keep track of training loss and accuracy
+        evaluated_data = 0
+        total_batches = 0
+        running_loss = 0.0
+        running_acc = 0.0
+
         # batching
         for i, batch in enumerate(train_loader):
             data, labels = batch
@@ -73,11 +69,14 @@ def train(model, train_loader, valid_loader, opts):
             total_batches += 1
 
         # training data statistics
-        Loss["train"].append( float(running_loss / opts.eval_every) )
+        Loss["train"].append( float(running_loss / total_batches) )
         Acc["train"].append( float(running_acc / evaluated_data)  )
 
         # validation data statistics
+        model.eval()
         loss, acc = evaluate(model, valid_loader, loss_fnc, total_correct)
+        model.train()
+        
         Loss["valid"].append( float(loss) )
         Acc["valid"].append( float(acc) )
 
@@ -97,8 +96,10 @@ def train(model, train_loader, valid_loader, opts):
             kernels = [W.data.numpy().flatten() for W in model.conv[0].weight]
             display_kernels(kernels, 3, 300)
         else:
-            kernels = np.array([fc[0].weight.data.numpy() for fc in model.Hidden]).squeeze()
-            display_kernels(kernels, 5, 250)
+            layers = np.array([fc[0].weight.data.numpy() for fc in model.Hidden])
+            for kernels in layers:
+                display_kernels(kernels, 5, 250)
+                plt.close()
 
     # return final statistic values
     model.eval()
@@ -116,10 +117,10 @@ if __name__ == "__main__":
     # getting args
     opts = AttrDict()
     args_dict = {
-        "seed": None,
+        "seed": 0,          # this gives a good initialization for the CNN
         "lr": 0.01,
-        "epochs": 10,
-        "batch_size": 100,
+        "epochs": 50,
+        "batch_size": 50,
         "optimizer": torch.optim.Adam,      # doesn't work if you use torch.optim.SGD
         "loss_fnc": torch.nn.BCEWithLogitsLoss(),
         "plot": True,
@@ -130,12 +131,18 @@ if __name__ == "__main__":
     # error checking
     if not opts.model_type in ["CNN", "MLP"]:
         raise ValueError(f"{opts.model_type} architecture not supported")
+    
+    # random seed
+    if not opts.seed is None:
+        torch.manual_seed(opts.seed)
 
     # getting data
     train_loader, valid_loader = load_data(batch_size=opts.batch_size, seed=opts.seed)
 
     # creating model
-    model = SingleLayerCNN(target.shape, 10) if opts.model_type == "CNN" else MLP(25)
+    CNN = SingleLayerCNN(kernel_size=target.shape, num_kernels=1, output_size=1)
+    MLP = MLP(input_size=(5, 5), output_size=1, num_hidden_layers=1, hidden_size=9)
+    model = CNN if opts.model_type == "CNN" else MLP
 
     # training model
     final_statistics = train(model, train_loader, valid_loader, opts)

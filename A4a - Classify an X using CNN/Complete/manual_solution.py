@@ -2,6 +2,8 @@ import numpy as np
 
 class SingleLayerCNN(object):
     
+    name = "Single Layer CNN"
+
     def __init__(self, target):
         self.target = target
         self.weights = np.vectorize(lambda x: -1 if x == 0 else x)(target)
@@ -49,6 +51,67 @@ class SingleLayerCNN(object):
         # having a hard threshold is like having a sigmoid as the last activation function
         return self.hard_threshold(x)
 
+
+class MLP(object):
+
+    name = "MLP"
+
+    def __init__(self, input_size, target):
+        self.input_size = input_size
+        self.target = target
+        self.hidden_size = self.calculate_hidden_size()
+
+        self.create_parameters()
+
+    def __call__(self, input_grid):
+        return self.forward(input_grid)
+
+    def calculate_hidden_size(self):
+        h_in, w_in = self.input_size
+        kernel_shape = self.target.shape
+        
+        # this is just the formula we used to calculate the effect of a convolution
+        # with padding = 0, dilation = 1, and stride = 1
+        h_out = h_in - kernel_shape[0] + 1
+        w_out = w_in - kernel_shape[1] + 1
+        return int(h_out) * int(w_out)
+
+    def create_parameters(self):
+        self.kernel = np.vectorize(lambda x: -1 if x == 0 else x)(target)
+        
+        self.W = np.zeros((self.hidden_size, self.input_size[0] * self.input_size[1]))
+        for i in range(self.W.shape[0]):
+            # this creates a matrix with the kernel in every possible position, with 0's everywhere else
+            center = np.unravel_index(i, target.shape)
+            padding_cordinates = ((center[0], 2-center[0]), (center[1], 2-center[1]))
+            # the MLP weights are just the flattened array this matrix
+            self.W[i] = np.pad(self.kernel, padding_cordinates).flatten()
+
+        self.bias = np.ones(self.hidden_size) * (1 - np.sum(target))
+
+    def linear(self, x):
+        return self.W @ x + self.bias
+
+    @staticmethod
+    def ReLU(Z):
+        return np.maximum(0, Z)
+
+    @staticmethod
+    def hard_threshold(Z):
+        return np.maximum(0, np.minimum(Z, 1))
+
+    def forward(self, x):
+        x = x.flatten()
+        x = self.linear(x)
+        x = self.ReLU(x)
+        
+        # the sum is analogous to a linear layer with weights 1 and bias 0
+        x = int(np.sum(x))
+
+        # having a hard threshold is like having a sigmoid as the last activation function
+        return self.hard_threshold(x)
+
+
 class Tester(object):
 
     def __init__(self, target):
@@ -71,23 +134,32 @@ class Tester(object):
     def isCorrect(self, input_list):
         return self.target == input_list
     
-    def test(self, CNN):
+    def test(self, model):
         correct_weights = True
         data, labels = self.get_test_examples()
         for d, label in zip(data, labels):
-            pred = CNN(d)
+            pred = model(d)
             if pred == label:
                 # classified correctly
                 pass
             else:
-                print(f"{d}\nfailed: CNN predicted {pred} and should have been {label}")
+                print(f"{d}\nfailed: {model.name} predicted {pred} and should have been {label}")
                 correct_weights = False
         
         if correct_weights:
-            print("Single Layer CNN works in all cases\n")
-            print(f"target pattern:\n{CNN.target}\n")
-            print(f"weights:\n{CNN.weights}")
-            print(f"bias = {CNN.bias}")
+            print(f"{model.name} works in all cases\n")
+            if model.name == "Single Layer CNN":
+                print(f"target pattern:\n{model.target}\n")
+                print(f"weights:\n{model.weights}")
+                print(f"bias = {model.bias}")
+            else:
+                print(f"target pattern:\n{model.target}\n")
+                print("weights:")
+                for w in model.W:
+                    print(w.reshape(model.input_size))
+                    print()
+                print(f"bias = {model.bias}")
+
 
 if __name__ == "__main__":
     target = np.array([
@@ -97,5 +169,8 @@ if __name__ == "__main__":
     ])
 
     CNN = SingleLayerCNN(target)
+    MLP = MLP((5, 5), target)
     T = Tester(target)
     T.test(CNN)
+    print("\n")
+    T.test(MLP)

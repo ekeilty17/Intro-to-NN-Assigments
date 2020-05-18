@@ -18,5 +18,7 @@ class MLP(nn.Module):
 
         # add as many as you wish, but you don't need many
 
+        # Hint: you can use the code from A2 if you'd like to write a general MLP
+
     def forward(self, x):
         raise NotImplementedError

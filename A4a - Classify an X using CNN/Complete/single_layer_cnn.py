@@ -3,18 +3,19 @@ import torch.nn as nn
 
 class SingleLayerCNN(nn.Module):
 
-    def __init__(self, kernel_size, num_kernels):
+    def __init__(self, kernel_size, num_kernels, output_size=1):
         super(SingleLayerCNN, self).__init__()
 
         self.kernel_size = kernel_size
         self.num_kernels = num_kernels
+        self.output_size = output_size
 
         self.conv = nn.Sequential(
             nn.Conv2d(in_channels=1, out_channels=num_kernels, kernel_size=kernel_size, stride=1, padding=0),
             nn.ReLU()
         )
         self.fc = nn.Sequential(
-            nn.Linear(kernel_size[0] * kernel_size[1] * self.num_kernels, 1)
+            nn.Linear(kernel_size[0] * kernel_size[1] * self.num_kernels, output_size)
         )
 
     def forward(self, x):

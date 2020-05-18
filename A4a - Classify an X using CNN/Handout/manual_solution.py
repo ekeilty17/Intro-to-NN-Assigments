@@ -8,7 +8,7 @@ class SingleLayerCNN(object):
         self.bias = ## TODO
 
         # Note: weights must be a 2D grid matching the dimensions of the target. Not a flat list like in the first assignment
-        # Also note: bias is still just a single number (not a list)
+        # Also Note: bias is still just a single number (not a list)
 
     def __call__(self, input_grid):
         return self.forward(input_grid)
@@ -21,7 +21,7 @@ class SingleLayerCNN(object):
         return int(h_out), int(w_out)
 
     def convolution(self, input_grid, stride=1, padding=0):
-        dilation = 1    # this operation is currently not supported
+        dilation = 1    # this operation is currently not supported (because it's complicated)
         
         kernel = np.flip(self.weights, axis=1)
         x, y = kernel.shape
