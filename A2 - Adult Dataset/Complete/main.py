@@ -152,12 +152,12 @@ if __name__ == "__main__":
 
     # load data
     #   You only have to call this once, then it'll save the preprocessed data into a new .csv file
-    #train_loader, valid_loader = load_data( "../data/adult.csv", label_name, label_mapping,
-    #                                        preprocess=True, batch_size=opts.batch_size, seed=opts.seed)
+    train_loader, valid_loader = load_data( "../data/adult.csv", label_name, label_mapping,
+                                            preprocess=True, batch_size=opts.batch_size, seed=opts.seed)
 
     #   Then you can just call it like this, which should make thing run faster
-    train_loader, valid_loader = load_data( "../data/adult_preprocessed.csv", label_name, label_mapping,
-                                            preprocess=False, batch_size=opts.batch_size, seed=opts.seed)
+    #train_loader, valid_loader = load_data( "../data/adult_preprocessed.csv", label_name, label_mapping,
+    #                                        preprocess=False, batch_size=opts.batch_size, seed=opts.seed)
 
     # based on label_mapping variable, we specify some useful variables in opts
     if label_mapping is None:                           # regression
