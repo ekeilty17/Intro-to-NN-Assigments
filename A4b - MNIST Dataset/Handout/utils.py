@@ -42,10 +42,10 @@ class MNISTDataset(Dataset):
 
     """ How this works, because the code is not very readable
     1)  Gets path to ubyte file
-    2)  upzips the .gz file at that path. f_img/f_lbl are of type '_io.BufferedReader'
+    2)  upzip the .gz file at that path. f_img/f_lbl are of type '_io.BufferedReader'
     3)  The file that we opened is a ubyte file, so we need something to correctly interpret it
         This is what struct.unpack() does
-            - f_img.read(16) reads the first 16 bits of the file. Likewise f_lbl.read(8) reads the first 8 bits
+            - f_img.read(16) reads the first 16 bits of the file. Likewise f_lbl.read(8) reads the first 8 bits.
               The first few bytes of the file is not data, it is information about the file
             - '>IIII' and '>II' tells struct.unpack how to unpack the data. So the 'IIII' means give a tuple with 4 items in it 
             and the '>' gives the byte order. '>' = big-endian, '<' = little-endian (google it)

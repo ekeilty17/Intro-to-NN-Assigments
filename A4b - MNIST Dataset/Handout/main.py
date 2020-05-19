@@ -58,7 +58,8 @@ if __name__ == "__main__":
         "optimizer": torch.optim.Adam,
         "loss_fnc": torch.nn.CrossEntropyLoss(),
         "plot": True,
-        "model_type": "MLP"     # 'CNN' or 'MLP'
+        "save": True,
+        "model_type": "CNN"     # 'CNN' or 'MLP'
     }
     opts.update(args_dict)
 
@@ -89,4 +90,7 @@ if __name__ == "__main__":
     # training model
     final_statistics = train(model, train_loader, valid_loader, opts)
 
-    
+    # saving model
+    if opts.save:
+        torch.save(model, f"{opts.model_type.lower()}.pt")
+        print(f"model saved as {opts.model_type.lower()}.pt")

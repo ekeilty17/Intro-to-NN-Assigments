@@ -105,7 +105,7 @@ if __name__ == "__main__":
     opts = AttrDict()
     args_dict = {
         "seed": None,
-        "lr": 0.001,
+        "lr": 0.01,
         "epochs": 5,
         "batch_size": 100,
         "eval_every": 100,
