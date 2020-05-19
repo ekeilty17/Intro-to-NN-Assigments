@@ -133,3 +133,6 @@ dmypy.json
 
 # I'll add data files manually since they can be large sometimes
 *.csv
+
+# I'll also upload saved models manually if I ever want to
+*.pt
