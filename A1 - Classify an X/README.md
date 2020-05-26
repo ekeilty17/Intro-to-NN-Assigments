@@ -24,7 +24,7 @@ We will use a Single Neuron Linear Classifier in order to solve this classificat
 ### Part 1
 Can you come up with a hand-crafted solution? What should { w1, w2, ..., w9 } and the _bias_ be so that the Linear Classifier will always correctly classify the “X”?
 
-**Extra Credit**: Does this solution scale up? i.e. what if I made an “X” with a 5x5 grid instead? What if I were to pick a different arrangement of 1’s and 0’s in any grid. Can you find a hand-crafted solution to that?
+**Extra Credit**: Does this solution scale? i.e. what if I made an “X” with a 5x5 grid instead? What if I were to pick a different arrangement of 1’s and 0’s in any grid? Can you find a hand-crafted solution to that?
 
 
 ### Part 2
