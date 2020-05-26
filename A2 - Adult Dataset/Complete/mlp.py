@@ -10,7 +10,7 @@ class MultiLayerPerceptron(nn.Module):
         "tanh" : nn.Tanh()
     }
 
-    def __init__(self, input_size, num_hidden_layers=1, hidden_size=64, actfunction="relu", output_size=1, seed=None, **kwargs):
+    def __init__(self, input_size, num_hidden_layers=1, hidden_size=64, actfunction="relu", output_size=1):
         super(MultiLayerPerceptron, self).__init__()
 
         self.input_size = input_size
@@ -20,11 +20,6 @@ class MultiLayerPerceptron(nn.Module):
         self.output_size = output_size
 
         layers = [self.input_size] + self.hidden_size
-
-        # random seed
-        self.seed = seed
-        if not self.seed is None:
-            torch.manual_seed(self.seed)
 
         # Creating hidden layers of neural network
         self.Hidden = nn.ModuleList()

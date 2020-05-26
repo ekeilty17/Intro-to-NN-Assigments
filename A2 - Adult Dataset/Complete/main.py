@@ -177,7 +177,12 @@ if __name__ == "__main__":
 
     # creating model
     input_size = len(train_loader.dataset.data[0, :])
-    model = MultiLayerPerceptron(input_size, **opts)
+    model = MultiLayerPerceptron(   input_size, 
+                                    num_hidden_layers=opts.num_hidden_layers, 
+                                    hidden_size=opts.hidden_size, 
+                                    actfunction=opts.actfunction, 
+                                    output_size=opts.output_size
+                                )
 
     # training model
     final_statistics = train(model, train_loader, valid_loader, opts)
