@@ -36,6 +36,47 @@ See L2 slides for graphics on normalizing and onehot encoding. The question you 
   
 ## Task
 
-1. You will fill in some of the missing preprocessing code (found in `utils.py`). Specifically cleaning and balancing the data set. Normalizing and onehot encoding has been done for you.
+### Part 1
+You will fill in some of the missing preprocessing code (found in `utils.py`). Specifically cleaning and balancing the data set. Normalizing and onehot encoding has been done for you.
 
-2. You will then create a simple MLP to predict a person’s income. For information on MLPs see L2 slides. **Note**: the best non-neural networks can do is about 86% accuracy, so getting anything above an 80% validation accuracy is considered excellent.
+```python
+def clean(df):
+    """ 
+    TODO: Removes rows with bad data
+        param: pd.DataFrame
+        return: pd.DataFrame
+    """
+    # Note: "bad data" is data in the dataset that have entries '?'
+    raise NotImplementedError
+
+def balance(df, label_feature, seed=None):
+    """ 
+    TODO: Remove rows such that there is an equal number of rows with each feature_label value
+        param: pd.DataFrame, str, int
+        return: pd.DataFrame
+    """
+    # Steps: 
+    # 1) Get set of all values in in the column "label_feature"
+    #    (for the label "incomes", these values will be "<= 50K" and "> 50K")
+    # 2) count the number of times each value appears in the column and get the minimum such value
+    # 3) iterate through all data with each value, and cut the number down to this minimum value
+    raise NotImplementedError
+```
+
+### Part 2
+You will then create a simple MLP to predict a person’s income. For information on MLPs see L2 slides. 
+
+```python
+class MultiLayerPerceptron(nn.Module):
+
+    def __init__(self, input_size, output_size=1):
+        super(MultiLayerPerceptron, self).__init__()
+        raise NotImplementedError
+
+    def forward(self, x):
+        raise NotImplementedError
+```
+
+You may implement a specific MLP in this class, or you can add arguments to the `__init__` so that the class can produce any arbitrary MLP. See the in the `Complete` directory for how to implement a general MLP
+
+**Note**: the best non-neural networks can do is about 86% accuracy, so getting anything above an 80% validation accuracy is considered excellent.
