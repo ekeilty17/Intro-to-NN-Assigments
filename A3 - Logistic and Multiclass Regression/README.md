@@ -13,4 +13,4 @@ Consider a Logistic Binary Classification and a Multiclass Classification with K
 You will derive the backpropagation formula for the Softmax activation function and Cross Entropy Loss function. This will be similar to the derivation for the sigmoid activation function, but a bit more complex. See L3 slides for more detail and some hints, it's much too mathy to write without Latex.
 
 ### Part 3
-We will be solving the classify an "X" toy problem again, using the exact same deteset as before. This time you will be implementing the two architectures you analyzed in Part 1. The goal of this assignment is to get more practice with PyTorch and to get some experience with the different functions you will be using most often in practice.
+We will be solving the classify an "X" toy problem again, using the exact same dataset as before. This time you will be implementing the two architectures you analyzed in Part 1. The goal of this assignment is to get more practice with PyTorch and to get some experience with the different functions you will be using most often in practice.
