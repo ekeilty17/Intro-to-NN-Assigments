@@ -1,47 +1,18 @@
-# Classify an X using a CNN
-We are back once again to our toy problem from assignments 1 and 3. This time we are changing it up. We are still trying to classify the same 3x3 X pattern, except now it can be in a larger grid. In this assignment we will be using a 5x5 grid, but we could have used a grid of any size.
+# The MNIST Dataset
+Get excited because we are done with the classifying X's and moving on to some real world problems. The [MNIST](http://yann.lecun.com/exdb/mnist/) (Modified National Institute of Standards and Technology) Dataset is a very famous dataset in the Neural Network world. It contains 70,000 (28x28) images of hand-written digits (60,000 training examples and 10,000 validation examples) ranging from 0 to 9. This dataset is often used to measure how powerful different models are, as shown in the figure below
 
-For example, these are both positive examples of an X pattern appearing in a 5x5 grid.
+![](https://lh3.googleusercontent.com/proxy/CHj-pxSXgM2KZB3DmWdCU3uWya8myrSmrtAyDfAO6Ndnd6ngvJ4qzRPondD3Fz7YHU3pebBCiGMTAZNwT0jtOPZSM5LO5pusNIRq)
 
-<table> 
-  <tr>
-    <td><strong>1</strong></td> <td><strong>0</strong></td> <td><strong>1</strong></td> <td>0</td> <td>0</td>
-  </tr>
-  <tr>
-    <td><strong>0</strong></td> <td><strong>1</strong></td> <td><strong>0</strong></td> <td>0</td> <td>0</td>
-  </tr>
-  <tr>
-    <td><strong>1</strong></td> <td><strong>0</strong></td> <td><strong>1</strong></td> <td>0</td> <td>0</td>
-  </tr>
-  <tr>
-    <td>0</td> <td>0</td> <td>0</td> <td>0</td> <td>0</td>
-  </tr>
-  <tr>
-    <td>0</td> <td>0</td> <td>0</td> <td>0</td> <td>0</td>
-  </tr>
-</table>
-
-<table> 
-  <tr>
-    <td>1</td> <td>1</td> <td>1</td> <td>1</td> <td>1</td>
-  </tr>
-  <tr>
-    <td>1</td> <td>1</td> <td><strong>1</strong></td> <td><strong>0</strong></td> <td><strong>1</strong></td> 
-  </tr>
-  <tr>
-    <td>1</td> <td>1</td> <td><strong>0</strong></td> <td><strong>1</strong></td> <td><strong>0</strong></td>
-  </tr>
-  <tr>
-    <td>1</td> <td>1</td> <td><strong>1</strong></td> <td><strong>0</strong></td> <td><strong>1</strong></td> 
-  </tr>
-  <tr>
-    <td>1</td> <td>1</td> <td>1</td> <td>1</td> <td>1</td>
-  </tr>
-</table>
-
-Now, our classifier needs to be translation invariant, since the X pattern can be anywhere in the grid. This is exactly what CNNs were designed for.
-
-This is a very simplified version of image classification. In real world applications, the kernels of the CNN would learn to detect different X patterns relevant to the thing it's trying to classify. For example, if it's trying to detect human faces, one kernel may learn to locate eyes, another to locate noses, mouths, ears, etc. There are methods such as Gradient Ascent that attempt to visualize these convolutional layers, which can show the different features the kernels pick out.
+Our goal is to use the Convolutional Neural Network architecture in order to accurately and efficiently classify these hand-written digits.
 
 ## Task
-You will write a ...
+
+### Part 1
+You will implement the LeNet architecture in PyTorch. A diagram is given below, and my own version of the diagram is provided in the L4 slides.
+
+![LeNet](https://miro.medium.com/fit/c/1838/551/0*H9_eGAtkQXJXtkoK)
+
+LeNet was introduced by LeCun in his paper [Gradient-Based Learning Applied to Document Recognition](http://yann.lecun.com/exdb/publis/pdf/lecun-01a.pdf) and was specifically designed for this dataset. LeNet was one of the earliest applications of the Convolutional Neural Network and marked a pivotal point in deep learning, showing the power of the idea of convolution. This very simple, compact achitecture can achive up to 96% accuracy on the MNIST dataset in a very short amount of time.
+
+### Part 2
+Try to implement an MLP architecture that can classify hand-written digits. Attempt to get over 80% accuracy. Compare the number of parameters in each model. Use the `demo.py` file to test each architecture and see failure modes of each model.
