@@ -106,7 +106,7 @@ if __name__ == "__main__":
     args_dict = {
         "seed": None,
         "lr": 0.01,
-        "epochs": 5,
+        "epochs": 2,
         "batch_size": 100,
         "eval_every": 100,
         "optimizer": torch.optim.Adam,

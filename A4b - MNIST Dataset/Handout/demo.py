@@ -7,12 +7,18 @@
 import tkinter as tk
 
 def get_handwritten_digit(ROWS, COLS):
-    
+
     # Create a grid of None to store the references to the tiles
     tiles = [[None for _ in range(COLS)] for _ in range(ROWS)]
 
+    # variables trying to mimick the pressure pattern produced by pen on paper
+    center = (8, "white")
+    side = (4, "light grey")
+    corner = (1, "grey")
+
     # callback function
     def draw(event):
+
         # Get rectangle diameters
         col_width = c.winfo_width() / COLS
         row_height = c.winfo_height() / ROWS
@@ -21,46 +27,34 @@ def get_handwritten_digit(ROWS, COLS):
         col = int(event.x // col_width)
         row = int(event.y // row_height)
         
-        # If the tile is not filled nor previously filled, create a rectangle
-        if tiles[row][col] is None or tiles[row][col][0] != 4:
-            
+        def create_rectangle(R, C, cell):
             # this kinda gets messy beause we need to store both the tile value and the reference to the tile
             #   the tile value is used for our model's prediction
             #   the tile reference is used so we can delete tiles if needed (this is returned by c.create_rectangle())
-            tiles[row][col] = (4, c.create_rectangle(col*col_width, row*row_height, (col+1)*col_width, (row+1)*row_height, fill="white"))
+            return cell[0], c.create_rectangle(C*col_width, R*row_height, (C+1)*col_width, (R+1)*row_height, fill=cell[1])
+
+
+        # If the tile is not filled nor previously filled, create a rectangle
+        if tiles[row][col] is None or tiles[row][col][0] != center[0]:
+            tiles[row][col] = create_rectangle(row, col, center)
             
             # This is adding grey edges, which helps the model correctly classify your digit
-            
             #   orthogonal tiles
             try:
-                if tiles[row-1][col] is None or tiles[row-1][col][0] == 1:
-                    tiles[row-1][col] = (2, c.create_rectangle(col*col_width, (row-1)*row_height, (col+1)*col_width, (row)*row_height, fill="light grey"))
-                
-                if tiles[row+1][col] is None or tiles[row-1][col][0] == 1:
-                    tiles[row+1][col] = (2, c.create_rectangle(col*col_width, (row+1)*row_height, (col+1)*col_width, (row+2)*row_height, fill="light grey"))
-                
-                if tiles[row][col-1] is None or tiles[row-1][col][0] == 1:
-                    tiles[row][col-1] = (2, c.create_rectangle((col-1)*col_width, row*row_height, (col)*col_width, (row+1)*row_height, fill="light grey"))
-
-                if tiles[row][col+1] is None or tiles[row-1][col][0] == 1:
-                    tiles[row][col+1] = (2, c.create_rectangle((col+1)*col_width, row*row_height, (col+2)*col_width, (row+1)*row_height, fill="light grey"))
-            except:
+                for R, C in [(row-1, col), (row+1, col), (row, col-1), (row, col+1)]:
+                    if (not tiles[R][C] is None) and (tiles[R][C][0] == center[0]):
+                        continue
+                    tiles[R][C] = create_rectangle(R, C, side)
+            except Exception as e:
                 pass
             
             #   diagonals tiles
             try:
-                if tiles[row-1][col-1] is None:
-                    tiles[row-1][col-1] = (1, c.create_rectangle((col-1)*col_width, (row-1)*row_height, (col)*col_width, (row)*row_height, fill="grey"))
-
-                if tiles[row+1][col+1] is None:
-                    tiles[row+1][col+1] = (1, c.create_rectangle((col+1)*col_width, (row+1)*row_height, (col+2)*col_width, (row+2)*row_height, fill="grey"))
-
-                if tiles[row+1][col-1] is None:
-                    tiles[row+1][col-1] = (1, c.create_rectangle((col-1)*col_width, (row+1)*row_height, (col)*col_width, (row+2)*row_height, fill="grey"))
-
-                if tiles[row-1][col+1] is None:
-                    tiles[row-1][col+1] = (1, c.create_rectangle((col+1)*col_width, (row-1)*row_height, (col+2)*col_width, (row)*row_height, fill="grey"))
-            except:
+                for R, C in [(row-1, col-1), (row+1, col+1), (row+1, col-1), (row-1, col+1)]:
+                    if (not tiles[R][C] is None) and (tiles[R][C][0] == center[0] or tiles[R][C][0] == side[0]):
+                        continue
+                    tiles[R][C] = create_rectangle(R, C, corner)
+            except Exception as e:
                 pass
 
     # callback function
@@ -92,7 +86,7 @@ def get_handwritten_digit(ROWS, COLS):
 
     # returns the bitmap, which is used as the input to our model
     bmp = [ [0 if t is None else t[0] for t in row] for row in tiles ]
-    return np.array(bmp)
+    return np.array(bmp) * (256 / center[0])
 
 
 """
@@ -110,7 +104,7 @@ def predict(model, image):
     image = torch.tensor(image).unsqueeze(0).unsqueeze(0)       # need to add a dimension for the batch
                                                                 # and another for the channel
     prediction = model(image.float())
-    prediction_probs = torch.nn.Softmax()(prediction)           # you technically don't need to do this, 
+    prediction_probs = torch.nn.Softmax(dim=1)(prediction)      # you technically don't need to do this, 
                                                                 # but it's nice to have them a probabilities
     return prediction_probs.squeeze().data.numpy()
 
@@ -125,7 +119,6 @@ if __name__ == "__main__":
     model.eval()
     
     image = get_handwritten_digit(28, 28)
-    image *= 64
 
     prediction = predict(model, image)
     display_prediction(prediction)

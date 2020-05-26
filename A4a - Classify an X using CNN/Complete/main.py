@@ -117,9 +117,9 @@ if __name__ == "__main__":
     # getting args
     opts = AttrDict()
     args_dict = {
-        "seed": 0,          # this gives a good initialization for the CNN
+        "seed": None,
         "lr": 0.01,
-        "epochs": 50,
+        "epochs": 10,
         "batch_size": 50,
         "optimizer": torch.optim.Adam,      # doesn't work if you use torch.optim.SGD
         "loss_fnc": torch.nn.BCEWithLogitsLoss(),
@@ -143,6 +143,7 @@ if __name__ == "__main__":
     CNN = SingleLayerCNN(kernel_size=target.shape, num_kernels=1, output_size=1)
     MLP = MLP(input_size=(5, 5), output_size=1, num_hidden_layers=1, hidden_size=9)
     model = CNN if opts.model_type == "CNN" else MLP
+
 
     # training model
     final_statistics = train(model, train_loader, valid_loader, opts)
