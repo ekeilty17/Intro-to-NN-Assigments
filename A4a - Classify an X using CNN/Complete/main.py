@@ -77,8 +77,8 @@ def train(model, train_loader, valid_loader, opts):
         loss, acc = evaluate(model, valid_loader, loss_fnc, total_correct)
         model.train()
         
-        Loss["valid"].append( float(loss) )
-        Acc["valid"].append( float(acc) )
+        Loss["valid"].append( loss )
+        Acc["valid"].append( acc )
 
         evaluated_data = 0
         running_loss = 0.0

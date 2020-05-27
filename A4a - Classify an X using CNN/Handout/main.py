@@ -47,7 +47,7 @@ def train(model, train_loader, valid_loader, opts):
             display_kernels(kernels, 3, 300)
         else:
             modual_list = [model.<name of first module>, model.<name of second module, ...]
-            layers = np.array([fc[0].weight.data.numpy() for fc in model_list])
+            layers = np.array([fc[0].weight.data.numpy() for fc in modual_list])
             for kernels in layers:
                 display_kernels(kernels, 5, 250)
                 plt.close()
