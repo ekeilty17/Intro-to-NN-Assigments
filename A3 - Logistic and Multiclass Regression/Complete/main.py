@@ -36,7 +36,7 @@ def evaluate(model, loader, opts):
             labels = labels.reshape(-1, 1).float() if opts.num_classes == 1 else labels.long()
             
             predictions = model(batch.float())
-            running_loss += loss_fnc(input=predictions, target=labels)
+            running_loss += loss_fnc(input=predictions, target=labels).detach().item()
             total_corr += total_correct(predictions, labels)
     
             evaluate_data += labels.size(0)
@@ -44,7 +44,7 @@ def evaluate(model, loader, opts):
 
     loss = running_loss / total_batches
     acc = total_corr / evaluate_data
-    return float(loss), float(acc)
+    return loss, acc
 
 def train(model, train_loader, valid_loader, opts):
 
@@ -82,7 +82,7 @@ def train(model, train_loader, valid_loader, opts):
             optimizer.step()
 
             # accumulated loss and accuracy
-            running_loss += loss
+            running_loss += loss.detach().item()
             running_acc += total_correct(predictions, labels)
             
             # updating counters
@@ -147,7 +147,7 @@ if __name__ == "__main__":
         torch.manual_seed(opts.seed)
 
     # load data
-    train_loader, valid_loader = load_data(opts.batch_size, opts.seed)
+    train_loader, valid_loader = load_data(opts.batch_size)
 
     # creating model
     model = LogisticRegression(len(target)) if opts.num_classes == 1 else MultiClassRegression(len(target), opts.num_classes)
