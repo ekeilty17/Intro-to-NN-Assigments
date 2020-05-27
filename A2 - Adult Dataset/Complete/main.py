@@ -42,7 +42,7 @@ def evaluate(model, loader, opts):
 
     loss = running_loss / total_batches
     acc = float(total_corr) / evaluate_data
-    return float(loss), float(acc)
+    return loss, acc
 
 def train(model, train_loader, valid_loader, opts):
 
