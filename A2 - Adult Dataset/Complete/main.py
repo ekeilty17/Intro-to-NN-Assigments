@@ -29,8 +29,12 @@ def evaluate(model, loader, opts):
 
     with torch.no_grad():
         for data, labels in loader:
+            
             predictions = model(data.float())
-            running_loss += opts.loss_fnc(input=predictions.squeeze(), target=labels.float())
+            if opts.classification_type in ["binary", "regression"]:
+                predictions = predictions.squeeze()
+
+            running_loss += opts.loss_fnc(input=predictions, target=labels.float()).detach().item()
             total_corr +=  opts.total_correct(predictions, labels)
 
             evaluate_data += labels.size(0)
@@ -71,13 +75,13 @@ def train(model, train_loader, valid_loader, opts):
 
             if opts.classification_type in ["binary", "regression"]:
                 predictions = predictions.squeeze()
-
-            loss = loss_fnc(input=predictions.squeeze(), target=labels.float())
+            
+            loss = loss_fnc(input=predictions, target=labels.float())
             loss.backward()
             optimizer.step()
 
             # update training loss and accuracy statistics
-            running_loss += loss
+            running_loss += loss.detach().item()
             running_acc += total_correct(predictions, labels)
 
             # updating counters
