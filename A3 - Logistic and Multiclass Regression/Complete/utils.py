@@ -30,11 +30,7 @@ class XPatternDataset(Dataset):
         return self.data[index, :], self.labels[index]
 
 
-def load_data(batch_size=None, seed=None):
-    # for when the data gets shuffled in the DataLoader
-    if not seed is None:
-        torch.manual_seed(seed)
-    
+def load_data(batch_size=None):
     train_dataset = XPatternDataset("../data/traindata.csv", "../data/trainlabels.csv")
     batch_size = len(train_dataset) if batch_size is None else batch_size
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
@@ -43,3 +39,7 @@ def load_data(batch_size=None, seed=None):
     valid_loader = DataLoader(valid_dataset, batch_size=len(valid_dataset))
 
     return train_loader, valid_loader
+
+def get_n_samples(loader, n=1):
+    for data, labels in loader:
+        return data[0:n], labels[0:n]

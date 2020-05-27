@@ -178,6 +178,10 @@ if __name__ == "__main__":
     }
     opts.update(args_dict)
 
+    # random seed
+    if not opts.seed is None:
+        torch.manual_seed(opts.seed)
+
     # load data
     train_loader, valid_loader = load_data(opts.batch_size, opts.seed)
 
