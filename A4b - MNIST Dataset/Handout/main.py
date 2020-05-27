@@ -18,7 +18,7 @@ def evaluate(model, loader, loss_fnc, total_correct):
     with torch.no_grad():
         for data, labels in loader:
             predictions = model(data.float())
-            running_loss += loss_fnc(input=predictions, target=labels)
+            running_loss += loss_fnc(input=predictions, target=labels).detach().item()
             total_corr += total_correct(predictions, labels)
             
             evaluate_data += labels.size(0)
@@ -72,7 +72,7 @@ if __name__ == "__main__":
         torch.manual_seed(opts.seed)
 
     # getting data
-    train_loader, valid_loader = load_data(batch_size=opts.batch_size, seed=opts.seed)
+    train_loader, valid_loader = load_data(batch_size=opts.batch_size)
 
     # both plots some sample data and gets the input size for the MLP
     input_size = None

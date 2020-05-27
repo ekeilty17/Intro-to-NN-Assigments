@@ -24,7 +24,7 @@ class XPatternDataset(Dataset):
         return self.data[index, :], self.labels[index]
 
 
-def load_data(batch_size=None, seed=None):
+def load_data(batch_size=None):
     train_data = np.loadtxt(open("../data/traindata.csv", "r"), delimiter=",")
     train_labels = np.loadtxt(open("../data/trainlabels.csv", "r"), delimiter=",")
     valid_data = np.loadtxt(open("../data/validdata.csv", "r"), delimiter=",")
