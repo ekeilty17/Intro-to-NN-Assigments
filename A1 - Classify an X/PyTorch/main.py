@@ -6,15 +6,19 @@ from single_neural_classifier import SingleNeuronClassifier
 from utils import *
 from plot import *
 
+def total_correct(predictions, labels):
+    corr = (predictions > 0.5) == (labels == 1)
+    return int(corr.sum())
+
 def evaluate(model, loader, loss_fnc):
     total_corr = 0 
     evaluate_data = 0 
     total_batches = 0 
     running_loss = 0.0 
     with torch.no_grad():
-        for batch, labels in loader:
-            predictions = model(batch.float())
-            running_loss += loss_fnc(input=predictions.squeeze(), target=labels.float())
+        for data, labels in loader:
+            predictions = model(data.float())
+            running_loss += loss_fnc(input=predictions, target=labels.float()).detach().item()
             total_corr += total_correct(predictions, labels)
     
             evaluate_data += labels.size(0)
@@ -22,16 +26,9 @@ def evaluate(model, loader, loss_fnc):
 
     loss = running_loss / total_batches
     acc = float(total_corr) / evaluate_data
-    return float(loss), float(acc)
-
-def total_correct(predictions, labels):
-    corr = (predictions > 0.5) == (labels == 1)
-    return int(corr.sum())
+    return loss, acc
 
 def train(model, train_loader, valid_loader, opts):
-    if not opts.seed is None:
-        torch.manual_seed(opts.seed)
-
     # initializing model and parameters
     model.train()
     optimizer = opts.optimizer(model.parameters(), lr=opts.lr)
@@ -66,7 +63,8 @@ def train(model, train_loader, valid_loader, opts):
             """ END: Important Part """
 
             # accumulated loss and accuracy
-            running_loss += loss
+            running_loss += loss.detach().item()                        # .detach() creates a copy of the tensor that doesn't have a grad_fn attribute
+                                                                        # .item() returns the value stored in the tensor
             running_acc += total_correct(predictions, labels)
             
             # updating counters
@@ -113,16 +111,19 @@ if __name__ == "__main__":
     opts = AttrDict()
     args_dict = {
         "seed": None,
-        "lr": 0.1,
+        "lr": 0.001,
         "actfunction": "relu",
         "epochs": 1000,
-        "batch_size": None,
+        "batch_size": 100,
         "eval_every": 1,
         "optimizer": torch.optim.SGD,
         "loss_fnc": torch.nn.MSELoss(),
         "plot": True
     }
     opts.update(args_dict)
+
+    if not opts.seed is None:
+        torch.manual_seed(opts.seed)
 
     # load data
     train_loader, valid_loader = load_data(opts.batch_size)

@@ -28,5 +28,5 @@ class SingleNeuronClassifier(nn.Module):
 
     """ ML Algorithms """
     def forward(self, I):        
-        return self.fc(I)
+        return self.fc(I).squeeze()
         
