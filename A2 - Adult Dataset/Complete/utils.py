@@ -185,3 +185,7 @@ def load_data(data_path, label_feature, label_mapping=None, preprocess=True, bat
     valid_loader = DataLoader(valid_dataset, batch_size=len(valid_dataset))
 
     return train_loader, valid_loader
+
+def get_n_samples(loader, n=1):
+    for data, labels in loader:
+        return data[0:n], labels[0:n]
