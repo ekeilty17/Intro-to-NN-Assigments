@@ -14,3 +14,6 @@ def load_data():
     valid_labels = np.loadtxt(open("../data/validlabels.csv", "rb"), delimiter=",")
 
     return train_data, train_labels, valid_data, valid_labels
+
+def get_n_samples(data, labels, n=1):
+    return data[0:n], labels[0:n]

@@ -13,7 +13,7 @@ class XPatternDataset(Dataset):
 
     def __init__(self, data_path, label_path):
         self.data = torch.tensor( pd.read_csv(data_path, header=None).values )
-        self.labels = torch.tensor( pd.read_csv(label_path, header=None).values )
+        self.labels = torch.tensor( pd.read_csv(label_path, header=None).values ).squeeze()
     
     def __len__(self):
         return self.data.size(0)
@@ -31,3 +31,7 @@ def load_data(batch_size=None):
     valid_loader = DataLoader(valid_dataset, batch_size=len(valid_dataset))
 
     return train_loader, valid_loader
+
+def get_n_samples(loader, n=1):
+    for data, labels in loader:
+        return data[0:n], labels[0:n]
