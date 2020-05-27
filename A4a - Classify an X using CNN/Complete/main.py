@@ -18,7 +18,7 @@ def evaluate(model, loader, loss_fnc, total_correct):
     with torch.no_grad():
         for data, labels in loader:
             predictions = model(data.float())
-            running_loss += loss_fnc(input=predictions.squeeze(), target=labels.float())
+            running_loss += loss_fnc(input=predictions.squeeze(), target=labels.float()).detach().item()
             total_corr += total_correct(predictions, labels)
             
             evaluate_data += labels.size(0)
@@ -26,7 +26,7 @@ def evaluate(model, loader, loss_fnc, total_correct):
     
     loss = running_loss / total_batches
     acc = float(total_corr) / evaluate_data
-    return float(loss), float(acc)
+    return loss, acc
 
 # Training Loop
 def train(model, train_loader, valid_loader, opts):
@@ -61,7 +61,7 @@ def train(model, train_loader, valid_loader, opts):
             optimizer.step()
 
             # accumulated loss and accuracy for the batch
-            running_loss += loss
+            running_loss += loss.detach().item()
             running_acc += total_correct(predictions, labels)
 
             # updating counters
@@ -137,7 +137,7 @@ if __name__ == "__main__":
         torch.manual_seed(opts.seed)
 
     # getting data
-    train_loader, valid_loader = load_data(batch_size=opts.batch_size, seed=opts.seed)
+    train_loader, valid_loader = load_data(batch_size=opts.batch_size)
 
     # creating model
     CNN = SingleLayerCNN(kernel_size=target.shape, num_kernels=1, output_size=1)

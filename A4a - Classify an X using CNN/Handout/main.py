@@ -19,7 +19,7 @@ def evaluate(model, loader, loss_fnc, total_correct):
     with torch.no_grad():
         for data, labels in loader:
             predictions = model(data.float())
-            running_loss += loss_fnc(input=predictions.squeeze(), target=labels.float())
+            running_loss += loss_fnc(input=predictions.squeeze(), target=labels.float()).detach().item()
             total_corr += total_correct(predictions, labels)
             
             evaluate_data += labels.size(0)
@@ -88,7 +88,7 @@ if __name__ == "__main__":
         torch.manual_seed(opts.seed)
 
     # getting data
-    train_loader, valid_loader = load_data(batch_size=opts.batch_size, seed=opts.seed)
+    train_loader, valid_loader = load_data(batch_size=opts.batch_size)
 
     # creating model
     model = SingleLayerCNN("""TODO: Inputs""") if opts.model_type == "CNN" else MLP("""TODO: Inputs""")
