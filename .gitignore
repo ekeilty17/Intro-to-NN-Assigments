@@ -136,3 +136,6 @@ dmypy.json
 
 # I'll also upload saved models manually if I ever want to
 *.pt
+
+# icloud files
+.icloud
