@@ -76,7 +76,7 @@ def train(model, train_loader, valid_loader, opts):
 
                 # validation data statistics
                 model.eval()
-                loss, acc = evaluate(model, valid_loader, loss_fnc, total_correct)
+                loss, acc = evaluate(model, valid_loader, loss_fnc)
                 model.train()
                 
                 Loss["valid"].append( float(loss) )
