@@ -10,7 +10,7 @@ def total_correct(predictions, labels):
     corr = ( torch.argmax(predictions, dim=1) == labels )
     return int(corr.sum())
 
-def evaluate(model, loader, loss_fnc, total_correct):
+def evaluate(model, loader, loss_fnc):
     total_corr = 0
     evaluate_data = 0
     total_batches = 0
