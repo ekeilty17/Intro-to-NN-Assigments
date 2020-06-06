@@ -133,9 +133,13 @@ dmypy.json
 
 # I'll add data files manually since they can be large sometimes
 *.csv
+*.pk
 
 # I'll also upload saved models manually if I ever want to
 *.pt
 
 # icloud files
 *.icloud
+
+# comes from GloVe embeddings
+.vector_cache
