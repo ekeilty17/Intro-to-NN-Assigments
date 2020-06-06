@@ -6,7 +6,8 @@ from utils import *
 from plot import *
 
 def total_correct(predictions, labels):
-    corr = ( predictions.long() == labels )
+    corr = ( torch.argmax(predictions, dim=1) == labels )
+    #corr = ( predictions.long() == labels )
     return int(corr.sum())
 
 def evaluate(model, loader, loss_fnc):
@@ -18,9 +19,9 @@ def evaluate(model, loader, loss_fnc):
         for data, labels in loader:
             seqs = data.permute(1, 0, 2)
             hidden = model.init_hidden(seqs.size(1))
-            
+
             predictions = model(seqs).squeeze()
-            running_loss += loss_fnc(input=predictions, target=labels.float()).detach().item()
+            running_loss += loss_fnc(input=predictions, target=labels).detach().item()
             total_corr += total_correct(predictions, labels)
 
             evaluate_data += labels.size(0)
@@ -31,10 +32,10 @@ def evaluate(model, loader, loss_fnc):
     return loss, acc
 
 def train(model, train_loader, valid_loader, opts):
-    
+
     # initializing model
     model.train()
-    optimizer = opts.optimizer(model.parameters(), lr=opts.lr, weight_decay=1e-3)
+    optimizer = opts.optimizer(model.parameters(), lr=opts.lr)
     loss_fnc = opts.loss_fnc
 
     # Initializing loss and accuracy arrays for plots
@@ -60,7 +61,7 @@ def train(model, train_loader, valid_loader, opts):
             # usual pytorch things
             optimizer.zero_grad()
             predictions = model(seqs).squeeze()
-            loss = loss_fnc(input=predictions, target=labels.float())
+            loss = loss_fnc(input=predictions, target=labels)
             loss.backward()
             optimizer.step()
 
@@ -74,7 +75,7 @@ def train(model, train_loader, valid_loader, opts):
 
             # evaluating accuracy
             if total_batches % opts.eval_every == 0:
-                
+
                 # training data statistics
                 Loss["train"].append( float(running_loss / opts.eval_every) )
                 Acc["train"].append( float(running_acc / evaluated_data)  )
@@ -83,7 +84,7 @@ def train(model, train_loader, valid_loader, opts):
                 model.eval()
                 loss, acc = evaluate(model, valid_loader, loss_fnc)
                 model.train()
-                
+
                 Loss["valid"].append( loss )
                 Acc["valid"].append( acc )
 
@@ -98,19 +99,11 @@ def train(model, train_loader, valid_loader, opts):
     if opts.plot:
         display_statistics(Loss["train"], Acc["train"], Loss["valid"], Acc["valid"])
         plt.close()
-    
+
     # return final statistic values
     model.eval()
     return Loss["train"][-1], Loss["valid"][-1], Acc["train"][-1], Acc["valid"][-1]
 
-def test(model, seq):
-    seq = torch.tensor(seq).reshape(-1, 1, 1)
-    hidden = model.init_hidden(1)
-    # running through RNN
-    for x in seq:
-        hidden = model(x.float(), hidden)
-    prediction = hidden.squeeze()
-    return prediction
 
 if __name__ == "__main__":
 
@@ -118,16 +111,16 @@ if __name__ == "__main__":
     opts = AttrDict()
     args_dict = {
         "seed": None,
-        "lr": 1e-5,
+        "lr": 1e-3,
         "epochs": 100,
         "batch_size": 32,
         "eval_every": 100,
-        "optimizer": torch.optim.AdamW,
-        "loss_fnc": torch.nn.MSELoss(),
+        "optimizer": torch.optim.Adam,
+        "loss_fnc": torch.nn.CrossEntropyLoss(),
         "seq_len": 3,                       # number of integers we are adding
         "hidden_size": 100,
         "high": 10,                         # integers range from [0, high)
-        "onehot": False,
+        "onehot": False,                    # experiment by changing this to True/False
         "plot": True
     }
     opts.update(args_dict)
@@ -136,6 +129,9 @@ if __name__ == "__main__":
     # if we don't onehot encode the inputs, then it is 1 since we are just inputting the raw numbers
     # if we do onehot encode, then it will be the size of the onehot encoded vector, i.e. opts.high
     opts.input_size = opts.high if opts.onehot else 1
+
+    # we are going to onehot encode our outputs
+    opts.output_size = opts.seq_len * (opts.high - 1) + 1
 
     # random seed for initializing weights
     if not opts.seed is None:
@@ -146,7 +142,7 @@ if __name__ == "__main__":
     train_loader, valid_loader = load_data(seq_len=opts.seq_len, high=opts.high, batch_size=opts.batch_size, onehot=opts.onehot)
 
     # creating model
-    model = RNN(opts.input_size, opts.hidden_size, 1)
+    model = RNN(opts.input_size, opts.hidden_size, opts.output_size)
 
     # training model
     final_statistics = train(model, train_loader, valid_loader, opts)
