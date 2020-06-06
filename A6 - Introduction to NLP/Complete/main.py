@@ -101,18 +101,23 @@ if __name__ == "__main__":
     # getting args
     opts = AttrDict()
     args_dict = {
-        "seed": None,
-        "lr": 0.01,
-        "epochs": 1,
-        "batch_size": 1000,
+        "seed": 2020,
+        "lr": 0.001,
+        "epochs": 10,
+        "batch_size": 100,
         "eval_every": 100,
-        "optimizer": torch.optim.AdamW,
+        "optimizer": torch.optim.Adam,
         "loss_fnc": torch.nn.CrossEntropyLoss(),
-        "context_length": (3, 0),
-        "hidden_size": 500,
+        "context_length": (2, 2),
+        "hidden_size": 500,             # only applies to Bengio
         "embedding_size": 100,
         "plot": False,
         "save_embeddings": True,
+        # preprocessing variables
+        "lemmatize": False,
+        "stem": False,
+        "remove_stopwords": False,
+        "library": "nltk"               # "nltk" or "spacy"
     }
     opts.update(args_dict)
 
@@ -121,12 +126,12 @@ if __name__ == "__main__":
         torch.manual_seed(opts.seed)
 
     # getting data
-    vocab, train_loader, valid_loader = load_data(  batch_size=opts.batch_size, seed=opts.seed,
-                                                    preprocess=True, context_length=opts.context_length)
+    #vocab, train_loader, valid_loader = load_data(preprocess=True, **opts)
+    vocab, train_loader, valid_loader = load_data(preprocess=False, **opts)
     opts.vocab_size = len(vocab)
 
     # creating model
-    model = CBOW(opts.context_length, opts.vocab_size)
+    model = CBOW(opts.context_length, opts.vocab_size, opts.embedding_size)
     #model = Bengio(opts.context_length, opts.vocab_size, opts.embedding_size, opts.hidden_size)
 
     # training model
@@ -136,3 +141,4 @@ if __name__ == "__main__":
     if opts.save_embeddings:
         embeddings = model.embedding.weight.data.numpy().T
         np.savetxt(f"{model.name.lower()}_word_vectors.csv", embeddings)
+        print(f"word vectors saved to {model.name.lower()}_word_vectors.csv")

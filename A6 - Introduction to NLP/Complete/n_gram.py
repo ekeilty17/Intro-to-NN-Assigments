@@ -13,7 +13,6 @@ class N_Gram(object):
         self.context_length = n-1       # here context_length is not a tuple and is just a single number
                                         # since n-grams assume we only take context from before the target word
         
-
         self.n_gram_counts = defaultdict(lambda: 0)
         self.context_counts = defaultdict(lambda: 1)
 
@@ -99,15 +98,20 @@ if __name__ == "__main__":
         "seed": None,
         "batch_size": None,
         "context_length": (3, 0),       # n-gram --> context_length = (n-1, 0)
-        "validate": False
+        "validate": False,
+        # preprocessing variables
+        "lemmatize": False,
+        "stem": False,
+        "remove_stopwords": False,
+        "library": "nltk"               # "nltk" or "spacy"
     }
     opts.update(args_dict)
 
     if not opts.seed is None:
         torch.manual_seed(opts.seed)
 
-    vocab, train_loader, valid_loader = load_data(  batch_size=opts.batch_size, seed=opts.seed,
-                                                    preprocess=True, context_length=opts.context_length)
+    vocab, train_loader, valid_loader = load_data(preprocess=True, **opts)
+    #vocab, train_loader, valid_loader = load_data(preprocess=False, **opts)
 
     n = opts.context_length[0] + 1
     model = N_Gram(vocab, n)

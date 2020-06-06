@@ -5,22 +5,22 @@ class Bengio(nn.Module):
 
     name = "Bengio"
 
-    def __init__(self, context_length, vocab_size, embedding_size, hidden_size=1000):
+    def __init__(self, context_length, vocab_size, embedding_size=None, hidden_size=1000):
         super(Bengio, self).__init__()
         self.context_length = context_length
-        self.embedding_size = embedding_size
+        self.embedding_size = vocab_size if embedding_size is None else embedding_size
 
         self.encode = lambda batch: nn.functional.one_hot(batch, vocab_size)
 
-        self.embedding = nn.Linear(vocab_size, embedding_size)
+        self.embedding = nn.Linear(vocab_size, self.embedding_size)
         
         self.fc = nn.Sequential(
-            nn.Linear(sum(context_length) * embedding_size, hidden_size),
+            nn.Linear(sum(context_length) * self.embedding_size, hidden_size),
             nn.Tanh()
         )
 
         self.last = nn.Sequential(
-            nn.Linear(hidden_size + sum(context_length) * embedding_size, vocab_size)
+            nn.Linear(hidden_size + sum(context_length) * self.embedding_size, vocab_size)
         )
     
     def forward(self, contexts):
