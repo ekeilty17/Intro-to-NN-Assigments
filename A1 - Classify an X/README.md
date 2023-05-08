@@ -30,8 +30,10 @@ Can you come up with a hand-crafted solution? What should { w1, w2, ..., w9 } an
 ### Part 2
 Code a Single Neuron Neural Network that will learn to classify an “X” using gradient descent, i.e.
 ```math
-w_i <-- w_i - (learning rate) * dE/dw_i
-b <-- b - (learning rate) * dE/db
+w_i \leftarrow w_i - (\text{learning rate}) \times dE/dw_i
+```
+```math
+b \leftarrow b - (\text{learning rate}) \times dE/db
 ```
 see L1 slides for more details.
 
